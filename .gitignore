@@ -1,0 +1,12 @@
+/config.json
+/123_access_token.txt
+/.DS_Store
+/rename_log.log
+/__pycache__/
+/.venv/
+/dist/
+/build/
+*.log.*
+/restart.log
+rename_data_backup_2*.json
+*.json
