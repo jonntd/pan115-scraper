@@ -289,9 +289,9 @@ A: 从GitHub Releases页面下载最新版本，或使用git pull更新源码。
 ## 📞 联系方式
 
 - **作者**: jonntd@gmail.com
-- **项目地址**: https://github.com/yourusername/pan115-scraper
-- **问题反馈**: https://github.com/yourusername/pan115-scraper/issues
-- **讨论交流**: https://github.com/yourusername/pan115-scraper/discussions
+- **项目地址**: https://github.com/jonntd/pan115-scraper
+- **问题反馈**: https://github.com/jonntd/pan115-scraper/issues
+- **讨论交流**: https://github.com/jonntd/pan115-scraper/discussions
 
 ## 🙏 致谢
 
