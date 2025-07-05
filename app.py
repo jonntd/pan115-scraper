@@ -37,6 +37,7 @@ from flask import Flask, render_template, request, jsonify
 # 应用程序初始化和常量定义
 # ================================
 
+# 简化的Flask初始化，让Flask自动处理资源路径
 app = Flask(__name__)
 
 # ================================
@@ -1640,7 +1641,24 @@ def qps_limit(api_name, limit=1):
 # ================================
 
 TMDB_API_URL_BASE = "https://api.themoviedb.org/3"
-CONFIG_FILE = 'config.json'
+
+# 配置文件路径 - 支持PyInstaller打包
+def get_config_path():
+    """获取配置文件路径，优先使用可执行文件同目录"""
+    try:
+        # 如果是PyInstaller打包的可执行文件
+        if hasattr(sys, '_MEIPASS'):
+            # 配置文件应该在可执行文件同目录，而不是临时目录
+            exe_dir = os.path.dirname(sys.executable)
+            return os.path.join(exe_dir, 'config.json')
+        else:
+            # 开发环境，使用脚本同目录
+            return os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config.json')
+    except:
+        # 后备方案
+        return 'config.json'
+
+CONFIG_FILE = get_config_path()
 
 # ================================
 # 应用程序配置管理
@@ -2519,7 +2537,22 @@ for handler in root_logger.handlers[:]:
 
 # 添加文件处理器 (使用 RotatingFileHandler)
 # maxBytes: 1MB, backupCount: 5
-file_handler = RotatingFileHandler('rename_log.log', maxBytes=1024 * 1024, backupCount=5)
+# 获取日志文件路径，确保在可执行文件同目录
+def get_log_path():
+    """获取日志文件路径"""
+    try:
+        if hasattr(sys, '_MEIPASS'):
+            # PyInstaller环境，日志文件放在可执行文件同目录
+            exe_dir = os.path.dirname(sys.executable)
+            return os.path.join(exe_dir, 'rename_log.log')
+        else:
+            # 开发环境
+            return 'rename_log.log'
+    except:
+        return 'rename_log.log'
+
+log_file_path = get_log_path()
+file_handler = RotatingFileHandler(log_file_path, maxBytes=1024 * 1024, backupCount=5)
 file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
 root_logger.addHandler(file_handler)
 
@@ -4131,7 +4164,19 @@ def apply_rename():
         }
 
         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-        backup_file_path = f'rename_backup_{timestamp}.json'
+
+        # 获取备份文件路径，确保在可执行文件同目录
+        def get_backup_path(filename):
+            try:
+                if hasattr(sys, '_MEIPASS'):
+                    exe_dir = os.path.dirname(sys.executable)
+                    return os.path.join(exe_dir, filename)
+                else:
+                    return filename
+            except:
+                return filename
+
+        backup_file_path = get_backup_path(f'rename_backup_{timestamp}.json')
 
         try:
             with open(backup_file_path, 'w', encoding='utf-8') as f:
@@ -6438,13 +6483,38 @@ def restart_app():
         return jsonify({'success': False, 'error': f'重启失败: {str(e)}'})
 
 if __name__ == '__main__':
+    import argparse
+
+    # 解析命令行参数
+    parser = argparse.ArgumentParser(description='Pan115 Scraper - 智能文件整理工具')
+    parser.add_argument('--port', type=int, default=5001, help='服务器端口 (默认: 5001)')
+    parser.add_argument('--host', default='127.0.0.1', help='服务器主机 (默认: 127.0.0.1)')
+    parser.add_argument('--debug', action='store_true', help='启用调试模式')
+    args = parser.parse_args()
+
     logging.info("启动 Flask 应用程序。")
-    # 确保 templates 目录存在
-    os.makedirs('templates', exist_ok=True)
-    os.makedirs('static', exist_ok=True)
+
+    # 确保必要目录存在（已在Flask初始化时处理）
+    # 这里不需要再次创建，因为Flask应用已经设置了正确的路径
 
     # 启动缓存清理后台任务
 
-    print("启动 Flask 应用程序在端口 5001...")
-    app.run(debug=True, host='127.0.0.1', port=5001) # 将端口改为 5001
+    print(f"启动 Flask 应用程序在端口 {args.port}...")
+    print(f"配置文件路径: {CONFIG_FILE}")
+    print(f"模板目录: {app.template_folder}")
+    print(f"静态文件目录: {app.static_folder}")
+    print(f"访问地址: http://{args.host}:{args.port}")
+
+    # 在生产环境中关闭debug模式，除非明确指定
+    debug_mode = args.debug or (not hasattr(sys, '_MEIPASS'))
+
+    try:
+        app.run(debug=debug_mode, host=args.host, port=args.port)
+    except OSError as e:
+        if "Address already in use" in str(e):
+            print(f"❌ 端口 {args.port} 已被占用")
+            print(f"💡 请尝试使用不同端口: --port {args.port + 1}")
+        else:
+            print(f"❌ 启动失败: {e}")
+        sys.exit(1)
 

@@ -352,7 +352,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const cookiesInput = document.getElementById('cookiesInput');
     const pan115CookieInput = document.getElementById('pan115CookieInput');
     const pan115Config = document.getElementById('pan115Config');
-    const pan115Config = document.getElementById('pan115Config');
     const currentStorageType = document.getElementById('currentStorageType');
 
     const tmdbApiKeyInput = document.getElementById('tmdbApiKeyInput');
