@@ -121,9 +121,9 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: release_files/*
-          name: "pan23-scraper ${{ github.ref_name }}"
+          name: "pan115-scraper ${{ github.ref_name }}"
           body: |
-            ## 🎉 pan23-scraper ${{ github.ref_name }}
+            ## 🎉 pan115-scraper ${{ github.ref_name }}
 
             ### 📦 下载
             - **Windows**: pan115-scraper-win.exe
