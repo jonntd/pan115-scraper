@@ -848,12 +848,12 @@ def call_ai_api(prompt, model=None, temperature=0.1):
             return None
 
         # 检查API配置
-        if not GEMINI_API_KEY or not GEMINI_API_URL:
+        if not AI_API_KEY or not AI_API_URL:
             logging.error("❌ AI API配置不完整")
             return None
 
         headers = {
-            'Authorization': f'Bearer {GEMINI_API_KEY}',
+            'Authorization': f'Bearer {AI_API_KEY}',
             'Content-Type': 'application/json'
         }
 
@@ -864,12 +864,12 @@ def call_ai_api(prompt, model=None, temperature=0.1):
             "temperature": temperature
         }
 
-        logging.info(f"🤖 调用AI API: {GEMINI_API_URL}")
+        logging.info(f"🤖 调用AI API: {AI_API_URL}")
         logging.info(f"📝 使用模型: {ai_model}")
 
         # 使用全局配置的超时时间
         AI_API_TIMEOUT = app_config.get('AI_API_TIMEOUT', 60)
-        response = requests.post(GEMINI_API_URL, headers=headers, json=payload, timeout=AI_API_TIMEOUT)
+        response = requests.post(AI_API_URL, headers=headers, json=payload, timeout=AI_API_TIMEOUT)
 
         logging.info(f"📊 API响应状态码: {response.status_code}")
 
@@ -1671,8 +1671,8 @@ app_config = {
     "MAX_WORKERS": 4,
     "COOKIES": "",
     "TMDB_API_KEY": "",
-    "GEMINI_API_KEY": "",
-    "GEMINI_API_URL": "",
+    "AI_API_KEY": "",
+    "AI_API_URL": "",
     "MODEL": "gemini-2.5-flash-lite-preview-06-17-search",
     "GROUPING_MODEL": "gemini-2.5-flash-lite-preview-06-17-search",
     "LANGUAGE": "zh-CN",
@@ -1711,8 +1711,8 @@ LANGUAGE = app_config["LANGUAGE"]
 
 # API配置变量
 TMDB_API_KEY = app_config["TMDB_API_KEY"]
-GEMINI_API_KEY = app_config["GEMINI_API_KEY"]
-GEMINI_API_URL = app_config["GEMINI_API_URL"]
+AI_API_KEY = app_config["AI_API_KEY"]
+AI_API_URL = app_config["AI_API_URL"]
 MODEL = app_config["MODEL"]
 GROUPING_MODEL = app_config["GROUPING_MODEL"]
 
@@ -1792,12 +1792,12 @@ def load_config():
     # 重新初始化任务管理器（如果配置发生变化）
     _reinitialize_task_manager()
 
-    logging.info(f"配置加载完成 - TMDB: {'✓' if TMDB_API_KEY else '✗'}, Gemini: {'✓' if GEMINI_API_KEY else '✗'}")
+    logging.info(f"配置加载完成 - TMDB: {'✓' if TMDB_API_KEY else '✗'}, AI: {'✓' if AI_API_KEY else '✗'}")
 
 def _update_global_variables():
     """更新全局变量"""
     global QPS_LIMIT, COOKIES, CHUNK_SIZE, MAX_WORKERS, LANGUAGE
-    global TMDB_API_KEY, GEMINI_API_KEY, GEMINI_API_URL, MODEL, GROUPING_MODEL
+    global TMDB_API_KEY, AI_API_KEY, AI_API_URL, MODEL, GROUPING_MODEL
 
     # 基础配置
     QPS_LIMIT = app_config["QPS_LIMIT"]
@@ -1808,8 +1808,8 @@ def _update_global_variables():
 
     # API配置
     TMDB_API_KEY = app_config["TMDB_API_KEY"]
-    GEMINI_API_KEY = app_config["GEMINI_API_KEY"]
-    GEMINI_API_URL = app_config["GEMINI_API_URL"]
+    AI_API_KEY = app_config["AI_API_KEY"]
+    AI_API_URL = app_config["AI_API_URL"]
     MODEL = app_config["MODEL"]
     GROUPING_MODEL = app_config["GROUPING_MODEL"]
 
@@ -2326,7 +2326,7 @@ def extract_movie_info_from_filename(filenames):
 
         # 准备API请求
         headers = {
-            "Authorization": f"Bearer {GEMINI_API_KEY}",
+            "Authorization": f"Bearer {AI_API_KEY}",
             "Content-Type": "application/json",
         }
 
@@ -2341,7 +2341,7 @@ def extract_movie_info_from_filename(filenames):
 
         # 发送API请求
         logging.info(f"正在提取 {len(filenames)} 个文件的信息...")
-        response = requests.post(GEMINI_API_URL, headers=headers, json=payload, timeout=TIMEOUT)
+        response = requests.post(AI_API_URL, headers=headers, json=payload, timeout=TIMEOUT)
         response.raise_for_status()
 
         data = response.json()
@@ -2368,7 +2368,7 @@ def extract_movie_info_from_filename(filenames):
             logging.info(f"成功提取 {len(json_data)} 个文件的信息")
             return json_data
         else:
-            logging.error(f"Gemini API 响应中未找到 JSON 块。完整响应: {input_string}")
+            logging.error(f"AI API 响应中未找到 JSON 块。完整响应: {input_string}")
             log_performance("extract_movie_info_from_filename", start_time, False, error="no_json_block")
             return None
 
@@ -3591,7 +3591,7 @@ def save_configuration():
 
         # 验证并更新配置
         for key in ["QPS_LIMIT", "CHUNK_SIZE", "MAX_WORKERS", "COOKIES", "TMDB_API_KEY",
-                   "GEMINI_API_KEY", "GEMINI_API_URL", "MODEL", "GROUPING_MODEL", "LANGUAGE",
+                   "AI_API_KEY", "AI_API_URL", "MODEL", "GROUPING_MODEL", "LANGUAGE",
                    "API_MAX_RETRIES", "API_RETRY_DELAY", "AI_API_TIMEOUT", "AI_MAX_RETRIES",
                    "AI_RETRY_DELAY", "TMDB_API_TIMEOUT", "TMDB_MAX_RETRIES", "TMDB_RETRY_DELAY",
                    "CLOUD_API_MAX_RETRIES", "CLOUD_API_RETRY_DELAY", "GROUPING_MAX_RETRIES",
@@ -4603,7 +4603,7 @@ def health_check():
             'timestamp': datetime.datetime.now().isoformat(),
             'version': '2.0.0',
             'performance_monitoring': PERFORMANCE_MONITORING,
-            'ai_enabled': bool(GEMINI_API_KEY),
+            'ai_enabled': bool(AI_API_KEY),
             'tmdb_enabled': bool(TMDB_API_KEY),
             'running_tasks': task_manager.get_running_tasks_count()
         }
@@ -4623,7 +4623,7 @@ def test_connection():
         data = request.get_json()
         cookies = data.get('cookies', '')
         tmdb_api_key = data.get('tmdb_api_key', '')
-        gemini_api_key = data.get('gemini_api_key', '')
+        ai_api_key = data.get('ai_api_key', '')
 
         results = {
             '115云盘': 'unknown',
@@ -4657,13 +4657,13 @@ def test_connection():
             except Exception as e:
                 results['TMDB'] = f'error: {str(e)}'
 
-        # 测试Gemini连接
-        if gemini_api_key:
+        # 测试AI连接
+        if ai_api_key:
             try:
-                gemini_url = app_config.get('GEMINI_API_URL', '')
-                if gemini_url:
+                ai_url = app_config.get('AI_API_URL', '')
+                if ai_url:
                     headers = {
-                        'Authorization': f'Bearer {gemini_api_key}',
+                        'Authorization': f'Bearer {ai_api_key}',
                         'Content-Type': 'application/json'
                     }
                     test_payload = {
@@ -4671,15 +4671,15 @@ def test_connection():
                         "messages": [{"role": "user", "content": "Hello"}],
                         "max_tokens": 10
                     }
-                    response = requests.post(gemini_url, headers=headers, json=test_payload, timeout=10)
+                    response = requests.post(ai_url, headers=headers, json=test_payload, timeout=10)
                     if response.status_code == 200:
-                        results['Gemini'] = 'success'
+                        results['AI'] = 'success'
                     else:
-                        results['Gemini'] = 'failed'
+                        results['AI'] = 'failed'
                 else:
-                    results['Gemini'] = 'no_url'
+                    results['AI'] = 'no_url'
             except Exception as e:
-                results['Gemini'] = f'error: {str(e)}'
+                results['AI'] = f'error: {str(e)}'
 
         # 检查是否有任何成功的连接
         success_count = sum(1 for status in results.values() if status == 'success')
@@ -4792,7 +4792,7 @@ def get_folder_grouping_analysis():
             logging.info(f"✅ 发现 {len(video_files)} 个视频文件")
 
             # 使用AI进行智能分组分析
-            if not GEMINI_API_KEY or not GEMINI_API_URL:
+            if not AI_API_KEY or not AI_API_URL:
                 return jsonify({'success': False, 'error': 'AI API未配置'})
 
             # 构建AI分析请求
@@ -4825,7 +4825,7 @@ def get_folder_grouping_analysis():
 """
 
             headers = {
-                'Authorization': f'Bearer {GEMINI_API_KEY}',
+                'Authorization': f'Bearer {AI_API_KEY}',
                 'Content-Type': 'application/json'
             }
 
@@ -4836,7 +4836,7 @@ def get_folder_grouping_analysis():
                 "temperature": 0.1
             }
 
-            response = requests.post(GEMINI_API_URL, headers=headers, json=payload, timeout=60)
+            response = requests.post(AI_API_URL, headers=headers, json=payload, timeout=60)
 
             if response.status_code == 200:
                 ai_response = response.json()
@@ -5320,7 +5320,7 @@ def create_folder_115(folder_name, parent_id):
 def generate_folder_name_suggestion(file_names):
     """使用AI生成文件夹名称建议"""
     try:
-        if not GEMINI_API_KEY or not GEMINI_API_URL:
+        if not AI_API_KEY or not AI_API_URL:
             logging.warning("AI API未配置，无法生成文件夹名称建议")
             return None
 
@@ -5350,7 +5350,7 @@ def generate_folder_name_suggestion(file_names):
 """
 
         headers = {
-            'Authorization': f'Bearer {GEMINI_API_KEY}',
+            'Authorization': f'Bearer {AI_API_KEY}',
             'Content-Type': 'application/json'
         }
 
@@ -5361,7 +5361,7 @@ def generate_folder_name_suggestion(file_names):
             "temperature": 0.3
         }
 
-        response = requests.post(GEMINI_API_URL, headers=headers, json=payload, timeout=15)
+        response = requests.post(AI_API_URL, headers=headers, json=payload, timeout=15)
 
         if response.status_code == 200:
             ai_response = response.json()
@@ -6148,13 +6148,13 @@ def test_ai_api():
     """测试AI API连接"""
     try:
         # 检查AI API配置
-        if not GEMINI_API_KEY or not GEMINI_API_URL:
+        if not AI_API_KEY or not AI_API_URL:
             return jsonify({
                 'success': False,
                 'error': 'AI API未配置',
                 'details': {
-                    'gemini_api_key': bool(GEMINI_API_KEY),
-                    'gemini_api_url': bool(GEMINI_API_URL)
+                    'ai_api_key': bool(AI_API_KEY),
+                    'ai_api_url': bool(AI_API_URL)
                 }
             })
 
@@ -6162,7 +6162,7 @@ def test_ai_api():
 
         # 发送测试请求
         headers = {
-            'Authorization': f'Bearer {GEMINI_API_KEY}',
+            'Authorization': f'Bearer {AI_API_KEY}',
             'Content-Type': 'application/json'
         }
 
@@ -6173,7 +6173,7 @@ def test_ai_api():
             "temperature": 0.1
         }
 
-        response = requests.post(GEMINI_API_URL, headers=headers, json=test_payload, timeout=15)
+        response = requests.post(AI_API_URL, headers=headers, json=test_payload, timeout=15)
 
         if response.status_code == 200:
             ai_response = response.json()

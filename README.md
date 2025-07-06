@@ -21,7 +21,7 @@ Pan115 Scraper 是一个专为115云盘设计的智能文件管理工具，集�
 
 ### 🎯 核心优势
 
-- **🤖 AI智能分组**: 基于Gemini AI的智能文件分组和命名
+- **🤖 AI智能分组**: 基于AI的智能文件分组和命名
 - **🎬 媒体信息刮削**: 集成TMDB数据库，自动获取电影/电视剧信息
 - **⚡ 高性能处理**: 支持大量文件的批量处理和任务队列管理
 - **🔒 安全可靠**: 本地部署，数据安全有保障
@@ -44,14 +44,8 @@ Pan115 Scraper 是一个专为115云盘设计的智能文件管理工具，集�
 ### 🎬 媒体刮削
 - **TMDB集成**: 自动获取电影、电视剧元数据
 - **多语言支持**: 支持中文、英文等多种语言
-- **海报下载**: 自动下载高质量海报和背景图
-- **NFO生成**: 生成Kodi/Plex兼容的NFO文件
 
-### 🔧 系统功能
-- **配置管理**: Web界面配置，实时生效
-- **日志监控**: 实时日志查看和错误追踪
-- **性能监控**: API调用统计和性能分析
-- **健康检查**: 系统状态监控和自动恢复
+
 
 ## 🚀 快速开始
 
@@ -59,8 +53,8 @@ Pan115 Scraper 是一个专为115云盘设计的智能文件管理工具，集�
 
 - Python 3.8+
 - 115云盘账号和有效Cookie
-- TMDB API密钥（可选）
-- Gemini API密钥（可选，用于AI功能）
+- TMDB API密钥
+- AI API密钥
 
 ### 安装方式
 
@@ -68,7 +62,7 @@ Pan115 Scraper 是一个专为115云盘设计的智能文件管理工具，集�
 
 ```bash
 # 克隆项目
-git clone https://github.com/yourusername/pan115-scraper.git
+git clone https://github.com/jonntd/pan115-scraper.git
 cd pan115-scraper
 
 # 安装依赖
@@ -80,7 +74,7 @@ python app.py
 
 #### 方式二：预编译版本
 
-从 [Releases](https://github.com/yourusername/pan115-scraper/releases) 页面下载对应平台的可执行文件：
+从 [Releases](https://github.com/jonntd/pan115-scraper/releases) 页面下载对应平台的可执行文件：
 
 - **Windows**: `pan115-scraper-win.exe`
 - **Linux**: `pan115-scraper-linux`
@@ -93,7 +87,7 @@ python app.py
 3. 填入必要的配置信息：
    - **115云盘Cookie**: 从浏览器开发者工具获取
    - **TMDB API密钥**: 从 [TMDB官网](https://www.themoviedb.org/settings/api) 申请
-   - **Gemini API配置**: 用于AI智能功能
+   - **AI API配置**: 用于AI智能功能
 
 ## ⚙️ 配置说明
 
@@ -108,8 +102,8 @@ python app.py
     "MAX_WORKERS": 4,                  // 最大工作线程数
     "COOKIES": "your_115_cookies",     // 115云盘Cookie
     "TMDB_API_KEY": "your_tmdb_key",   // TMDB API密钥
-    "GEMINI_API_KEY": "your_ai_key",   // AI API密钥
-    "GEMINI_API_URL": "api_endpoint",  // AI API端点
+    "AI_API_KEY": "your_ai_key",       // AI API密钥
+    "AI_API_URL": "api_endpoint",      // AI API端点
     "MODEL": "gemini-model-name",      // AI模型名称
     "LANGUAGE": "zh-CN"                // 界面语言
 }
@@ -229,7 +223,7 @@ pan115-scraper/
 A: 请检查Cookie是否正确且未过期。Cookie通常有效期为几天到几周，需要定期更新。
 
 ### Q: AI分组功能不可用？
-A: 请确保已正确配置Gemini API密钥和端点URL，并检查网络连接。
+A: 请确保已正确配置AI API密钥和端点URL，并检查网络连接。
 
 ### Q: 处理大量文件时程序卡住？
 A: 可以调整`QPS_LIMIT`和`CHUNK_SIZE`参数，降低并发度以避免API限制。
